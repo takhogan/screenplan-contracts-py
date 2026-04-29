@@ -1,0 +1,18 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "screenplan-contracts"
+version = "0.1.0"
+description = "ScreenPlan shared Pydantic models, JSON schemas, and validation helpers (Script, ScriptAction, ScriptActionLog, queue entries)."
+requires-python = ">=3.9"
+license = { text = "ISC" }
+dependencies = [
+    "pydantic>=2.5",
+    "jsonschema>=4.21",
+    "screenplan-contracts-schemas>=0.1.0",
+]
+
+[tool.setuptools]
+packages = ["screenplan_contracts"]
