@@ -18,6 +18,7 @@ from .models import (
     SystemName,
     RunStatus,
 )
+from screenplan_contracts_schemas import list_schemas
 from .validation import (
     ContractValidationError,
     get_artifacts_spec,
@@ -45,6 +46,7 @@ __all__ = [
     "ScriptStatus",
     "SystemName",
     "get_artifacts_spec",
+    "list_schemas",
     "load_schema",
     "validate_event_status",
     "validate_script",

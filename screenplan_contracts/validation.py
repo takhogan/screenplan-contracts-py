@@ -38,6 +38,7 @@ def _store() -> Dict[str, Dict[str, Any]]:
     names = [
         "common.schema.json",
         "script-action.schema.json",
+        "script-action-data.schema.json",
         "script.schema.json",
         "script-status.schema.json",
         "event-status.schema.json",
