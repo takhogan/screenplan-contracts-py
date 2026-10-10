@@ -53,6 +53,12 @@ class ScriptStatus(BaseModel):
         ),
     ] = None
     parallel: bool | None = None
+    restart_device_on_crash: Annotated[
+        bool | None,
+        Field(
+            description="Set by ScriptScheduler restartDeviceOnCrash(): the controller runs the engine with --restart-device-on-crash, restarting the device when reconnecting to it fails."
+        ),
+    ] = None
     script_log_folder: str | None = None
     show_details: Annotated[
         bool | None,
