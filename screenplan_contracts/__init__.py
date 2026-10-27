@@ -14,6 +14,7 @@ from .models import (
     ScriptActionArtifactsSpec,
     ScriptActionLog,
     ScriptActionLogChildStub,
+    ScriptActionResult,
     ScriptStatus,
     SystemName,
     RunStatus,
@@ -27,6 +28,7 @@ from .validation import (
     validate_script,
     validate_script_action,
     validate_script_action_log,
+    validate_script_action_result,
     validate_script_status,
 )
 
@@ -43,6 +45,7 @@ __all__ = [
     "ScriptActionArtifactsSpec",
     "ScriptActionLog",
     "ScriptActionLogChildStub",
+    "ScriptActionResult",
     "ScriptStatus",
     "SystemName",
     "get_artifacts_spec",
@@ -52,5 +55,6 @@ __all__ = [
     "validate_script",
     "validate_script_action",
     "validate_script_action_log",
+    "validate_script_action_result",
     "validate_script_status",
 ]

@@ -94,6 +94,11 @@ def validate_script_action_log(data: Any) -> _models.ScriptActionLog:
     return _models.ScriptActionLog.model_validate(data)
 
 
+def validate_script_action_result(data: Any) -> _models.ScriptActionResult:
+    _run("script-action-result.schema.json", "ScriptActionResult", data)
+    return _models.ScriptActionResult.model_validate(data)
+
+
 def validate_artifacts_spec(data: Any) -> _models.ScriptActionArtifactsSpec:
     _run("script-action-artifacts.schema.json", "ScriptActionArtifactsSpec", data)
     return _models.ScriptActionArtifactsSpec.model_validate(data)

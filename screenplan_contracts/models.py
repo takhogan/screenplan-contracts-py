@@ -38,6 +38,7 @@ from ._generated.script_action_schema import (
     ActionName,
     ScriptAction,
 )
+from ._generated.script_action_result_schema import ScriptActionResult
 from ._generated.script_action_data_schema import (
     ScriptActionData,
 )
@@ -97,6 +98,7 @@ __all__ = [
     "ScriptActionData",
     "ScriptActionLog",
     "ScriptActionLogChildStub",
+    "ScriptActionResult",
     "ScriptActionRow",
     "ScriptItem",
     "ScriptMeta",

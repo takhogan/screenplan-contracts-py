@@ -11,6 +11,7 @@ from screenplan_contracts import (
     get_artifacts_spec,
     validate_event_status,
     validate_script_action_log,
+    validate_script_action_result,
     validate_script_status,
 )
 
@@ -48,3 +49,25 @@ def test_artifacts_spec_loads():
 def test_negative_script_status():
     with pytest.raises(ContractValidationError):
         validate_script_status({"script_id": "x"})
+
+
+def test_script_action_result_example():
+    out = validate_script_action_result(_load("script-action-result.example.json"))
+    assert out.root.action == "detectObject"
+    assert out.root.fields.matches[0].score == 0.909
+
+
+def test_script_action_result_rejects_unknown_fields():
+    data = _load("script-action-result.example.json")
+    data["fields"]["typo_field"] = 1
+    with pytest.raises(ContractValidationError):
+        validate_script_action_result(data)
+
+
+def test_script_action_result_for_an_action_without_fields():
+    out = validate_script_action_result({
+        "format": "screenplan.action-result", "version": 1,
+        "action": "sleepStatement", "action_group": 3, "script_counter": 4, "fields": {},
+    })
+    assert out.root.action == "sleepStatement"
+
