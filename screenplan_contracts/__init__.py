@@ -18,8 +18,11 @@ from .models import (
     ScriptActionResult,
     ScriptProps,
     ScriptStatus,
+    ScriptVersions,
     SystemName,
     RunStatus,
+    UIGraph,
+    UIGraphRun,
 )
 from screenplan_contracts_schemas import list_schemas
 from .validation import (
@@ -34,6 +37,9 @@ from .validation import (
     validate_script_action_result,
     validate_script_props,
     validate_script_status,
+    validate_script_versions,
+    validate_ui_graph,
+    validate_ui_graph_run,
 )
 
 __all__ = [
@@ -53,7 +59,10 @@ __all__ = [
     "ScriptActionResult",
     "ScriptProps",
     "ScriptStatus",
+    "ScriptVersions",
     "SystemName",
+    "UIGraph",
+    "UIGraphRun",
     "get_artifacts_spec",
     "list_schemas",
     "load_schema",
@@ -65,4 +74,7 @@ __all__ = [
     "validate_script_action_result",
     "validate_script_props",
     "validate_script_status",
+    "validate_script_versions",
+    "validate_ui_graph",
+    "validate_ui_graph_run",
 ]

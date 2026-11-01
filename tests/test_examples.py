@@ -16,6 +16,9 @@ from screenplan_contracts import (
     validate_script_action_result,
     validate_script_props,
     validate_script_status,
+    validate_script_versions,
+    validate_ui_graph,
+    validate_ui_graph_run,
 )
 
 # CONTRACTS_DIR: another checkout of screenplan-contracts, such as a worktree
@@ -128,3 +131,52 @@ def test_action_log_with_needs_approval_status():
     data["status"] = "NEEDS_SOMETHING"
     with pytest.raises(ContractValidationError):
         validate_script_action_log(data)
+
+
+def test_script_action_result_v2_capture():
+    out = validate_script_action_result(_load("script-action-result-v2.example.json"))
+    assert out.root.version == 2
+    assert out.root.capture.taken_by.value == "action"
+    assert out.root.fields.input_at.root.root.endswith("Z")
+
+
+def test_script_action_result_v2_rejects_a_bad_capture():
+    data = _load("script-action-result-v2.example.json")
+    data["capture"]["taken_by"] = "someone"
+    with pytest.raises(ContractValidationError):
+        validate_script_action_result(data)
+    data = _load("script-action-result-v2.example.json")
+    data["capture"]["captured_at"] = "2026-11-01 17:00:04"
+    with pytest.raises(ContractValidationError):
+        validate_script_action_result(data)
+
+
+def test_keyboard_result_masked():
+    out = validate_script_action_result(_load("script-action-result-keyboard.example.json"))
+    assert out.root.fields.masked is True
+    assert out.root.fields.keys is None
+
+
+def test_keyboard_result_version_1_is_still_empty():
+    validate_script_action_result({
+        "format": "screenplan.action-result", "version": 1,
+        "action": "keyboardAction", "action_group": 3, "script_counter": 4, "fields": {},
+    })
+
+
+def test_script_versions_example():
+    out = validate_script_versions(_load("script-versions.example.json"))
+    assert out.device.sim is False
+
+
+def test_script_versions_without_a_device():
+    data = _load("script-versions.example.json")
+    del data["device"]
+    validate_script_versions(data)
+    data["device"] = None
+    validate_script_versions(data)
+
+
+def test_ui_graph_examples():
+    assert validate_ui_graph_run(_load("ui-graph-run.example.json")).events[1].input.kind.value == "click"
+    assert validate_ui_graph(_load("ui-graph.example.json")).app.key == "examplegame"

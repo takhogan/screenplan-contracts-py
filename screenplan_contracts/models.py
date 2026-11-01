@@ -41,6 +41,9 @@ from ._generated.script_action_schema import (
     ScriptAction,
 )
 from ._generated.script_action_result_schema import ScriptActionResult
+from ._generated.script_versions_schema import ScriptVersions
+from ._generated.ui_graph_run_schema import UIGraphRun
+from ._generated.ui_graph_schema import UIGraph
 from ._generated.script_action_data_schema import (
     ScriptActionData,
 )
@@ -107,8 +110,11 @@ __all__ = [
     "ScriptItem",
     "ScriptMeta",
     "ScriptProps",
+    "ScriptVersions",
     "SystemName",
     "TreeEntityType",
+    "UIGraph",
+    "UIGraphRun",
     "VariableItem",
 ]
 

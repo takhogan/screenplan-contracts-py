@@ -44,6 +44,10 @@ def _store() -> Dict[str, Dict[str, Any]]:
         "event-status.schema.json",
         "script-action-log.schema.json",
         "script-action-artifacts.schema.json",
+        "script-action-result.schema.json",
+        "script-versions.schema.json",
+        "ui-graph-run.schema.json",
+        "ui-graph.schema.json",
     ]
     return {name: load_schema(name) for name in names}
 
@@ -125,6 +129,21 @@ def validate_script_action_log(data: Any) -> _models.ScriptActionLog:
 def validate_script_action_result(data: Any) -> _models.ScriptActionResult:
     _run("script-action-result.schema.json", "ScriptActionResult", data)
     return _models.ScriptActionResult.model_validate(data)
+
+
+def validate_script_versions(data: Any) -> _models.ScriptVersions:
+    _run("script-versions.schema.json", "ScriptVersions", data)
+    return _models.ScriptVersions.model_validate(data)
+
+
+def validate_ui_graph_run(data: Any) -> _models.UIGraphRun:
+    _run("ui-graph-run.schema.json", "UIGraphRun", data)
+    return _models.UIGraphRun.model_validate(data)
+
+
+def validate_ui_graph(data: Any) -> _models.UIGraph:
+    _run("ui-graph.schema.json", "UIGraph", data)
+    return _models.UIGraph.model_validate(data)
 
 
 def validate_artifacts_spec(data: Any) -> _models.ScriptActionArtifactsSpec:
