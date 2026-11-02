@@ -118,3 +118,13 @@ def test_agent_tool_rejects(manifest):
     props["agentTool"] = manifest
     with pytest.raises(ContractValidationError):
         validate_script_props(props)
+
+
+def test_action_log_with_needs_approval_status():
+    data = _load("script-action-log.example.json")
+    data["status"] = "NEEDS_APPROVAL"
+    out = validate_script_action_log(data)
+    assert out.status.value == "NEEDS_APPROVAL"
+    data["status"] = "NEEDS_SOMETHING"
+    with pytest.raises(ContractValidationError):
+        validate_script_action_log(data)
