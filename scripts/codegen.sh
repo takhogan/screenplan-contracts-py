@@ -5,7 +5,9 @@
 # by screenplan_contracts/models.py.
 set -euo pipefail
 HERE="$(cd "$(dirname "$0")/.." && pwd)"
-SCHEMAS="$(cd "$HERE/../screenplan-contracts/screenplan_contracts_schemas/schemas" && pwd)"
+# CONTRACTS_DIR: another checkout of screenplan-contracts, such as a worktree.
+CONTRACTS_DIR="${CONTRACTS_DIR:-$HERE/../screenplan-contracts}"
+SCHEMAS="$(cd "$CONTRACTS_DIR/screenplan_contracts_schemas/schemas" && pwd)"
 OUT="$HERE/screenplan_contracts/_generated"
 
 rm -rf "$OUT"

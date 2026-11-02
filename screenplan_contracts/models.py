@@ -29,6 +29,8 @@ from ._generated.event_status_schema import (
     ScriptItem,
 )
 from ._generated.script_schema import (
+    AgentToolManifest,
+    AgentToolValueSchema,
     Script,
     ScriptActionRow,
     ScriptMeta,
@@ -79,6 +81,8 @@ class ScriptActionLog(_GeneratedScriptActionLog):
 
 __all__ = [
     "ActionArtifactSpec",
+    "AgentToolManifest",
+    "AgentToolValueSchema",
     "ActionName",
     "ArtifactAttributeSpec",
     "ArtifactFileSlot",

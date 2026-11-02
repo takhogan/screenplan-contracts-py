@@ -4,6 +4,7 @@ Public package: ``screenplan-contracts`` (PyPI), import as ``screenplan_contract
 """
 
 from .models import (
+    AgentToolManifest,
     ArtifactAttributeSpec,
     ArtifactFileSlot,
     ActionArtifactSpec,
@@ -15,6 +16,7 @@ from .models import (
     ScriptActionLog,
     ScriptActionLogChildStub,
     ScriptActionResult,
+    ScriptProps,
     ScriptStatus,
     SystemName,
     RunStatus,
@@ -24,15 +26,18 @@ from .validation import (
     ContractValidationError,
     get_artifacts_spec,
     load_schema,
+    validate_agent_tool_manifest,
     validate_event_status,
     validate_script,
     validate_script_action,
     validate_script_action_log,
     validate_script_action_result,
+    validate_script_props,
     validate_script_status,
 )
 
 __all__ = [
+    "AgentToolManifest",
     "ArtifactAttributeSpec",
     "ArtifactFileSlot",
     "ActionArtifactSpec",
@@ -46,15 +51,18 @@ __all__ = [
     "ScriptActionLog",
     "ScriptActionLogChildStub",
     "ScriptActionResult",
+    "ScriptProps",
     "ScriptStatus",
     "SystemName",
     "get_artifacts_spec",
     "list_schemas",
     "load_schema",
+    "validate_agent_tool_manifest",
     "validate_event_status",
     "validate_script",
     "validate_script_action",
     "validate_script_action_log",
     "validate_script_action_result",
+    "validate_script_props",
     "validate_script_status",
 ]

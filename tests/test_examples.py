@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import json
+import os
 from pathlib import Path
 
 import pytest
@@ -11,11 +12,17 @@ from screenplan_contracts import (
     get_artifacts_spec,
     validate_event_status,
     validate_script_action_log,
+    validate_agent_tool_manifest,
     validate_script_action_result,
+    validate_script_props,
     validate_script_status,
 )
 
-EXAMPLES = Path(__file__).resolve().parents[2] / "screenplan-contracts" / "examples"
+# CONTRACTS_DIR: another checkout of screenplan-contracts, such as a worktree
+# whose schemas package is on PYTHONPATH.
+EXAMPLES = Path(
+    os.environ.get("CONTRACTS_DIR") or Path(__file__).resolve().parents[2] / "screenplan-contracts"
+) / "examples"
 
 
 def _load(name: str):
@@ -71,3 +78,43 @@ def test_script_action_result_for_an_action_without_fields():
     })
     assert out.root.action == "sleepStatement"
 
+
+
+def test_script_props_example_with_agent_tool():
+    out = validate_script_props(_load("script-props.example.json"))
+    assert out.agent_tool.name == "open_app"
+    assert out.agent_tool.effects.value == "changes-device"
+    assert out.agent_tool.inputs["name"].model_dump()["type"] == "string"
+    assert out.agent_tool.timeout_seconds == 120
+
+
+def test_agent_tool_defaults():
+    out = validate_agent_tool_manifest({"description": "Reads the clock.", "effects": "reads-device"})
+    assert out.name is None
+    assert out.inputs == {} and out.outputs == {}
+    assert out.repeatable is False
+    assert out.timeout_seconds == 600
+
+
+@pytest.mark.parametrize("manifest", [
+    {"effects": "reads-device"},
+    {"description": "", "effects": "reads-device"},
+    {"description": "x"},
+    {"description": "x", "effects": "writes-disk"},
+    {"description": "x", "effects": "reads-device", "name": "OpenApp"},
+    {"description": "x", "effects": "reads-device", "name": "a" * 65},
+    {"description": "x", "effects": "reads-device", "inputs": {"name": "string"}},
+    {"description": "x", "effects": "reads-device", "timeoutSeconds": 0},
+    {"description": "x", "effects": "reads-device", "timeoutSeconds": 7201},
+    {"description": "x", "effects": "reads-device", "secrets": ["password"]},
+], ids=[
+    "no description", "empty description", "no effects", "unknown effects", "name with capitals",
+    "name too long", "input schema not an object", "timeout 0", "timeout above 7200", "unknown key",
+])
+def test_agent_tool_rejects(manifest):
+    with pytest.raises(ContractValidationError):
+        validate_agent_tool_manifest(manifest)
+    props = _load("script-props.example.json")
+    props["agentTool"] = manifest
+    with pytest.raises(ContractValidationError):
+        validate_script_props(props)

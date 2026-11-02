@@ -48,8 +48,14 @@ def _store() -> Dict[str, Dict[str, Any]]:
     return {name: load_schema(name) for name in names}
 
 
+_SCRIPT_SCHEMA_ID = "https://screenplan.local/schemas/script.schema.json"
+
+
 def _validator(schema_name: str) -> Draft202012Validator:
-    schema = load_schema(schema_name)
+    return _validator_for(load_schema(schema_name))
+
+
+def _validator_for(schema: Dict[str, Any]) -> Draft202012Validator:
     resolver = RefResolver.from_schema(
         schema,
         store={f"https://screenplan.local/schemas/{n}": s for n, s in _store().items()}
@@ -59,7 +65,16 @@ def _validator(schema_name: str) -> Draft202012Validator:
 
 
 def _run(schema_name: str, contract: str, data: Any) -> None:
-    errors = sorted(_validator(schema_name).iter_errors(data), key=lambda e: e.path)
+    _run_with(_validator(schema_name), contract, data)
+
+
+def _run_script_def(def_name: str, data: Any) -> None:
+    """Validate against one ``$defs`` entry of script.schema.json."""
+    _run_with(_validator_for({"$ref": f"{_SCRIPT_SCHEMA_ID}#/$defs/{def_name}"}), def_name, data)
+
+
+def _run_with(validator: Draft202012Validator, contract: str, data: Any) -> None:
+    errors = sorted(validator.iter_errors(data), key=lambda e: e.path)
     if errors:
         raise ContractValidationError(
             contract,
@@ -72,6 +87,19 @@ def _run(schema_name: str, contract: str, data: Any) -> None:
 def validate_script(data: Any) -> _models.Script:
     _run("script.schema.json", "Script", data)
     return _models.Script.model_validate(data)
+
+
+def validate_script_props(data: Any) -> _models.ScriptProps:
+    """A script's props.json."""
+    _run_script_def("ScriptProps", data)
+    return _models.ScriptProps.model_validate(data)
+
+
+def validate_agent_tool_manifest(data: Any) -> _models.AgentToolManifest:
+    """props.agentTool alone: the shape only. Its inputs and outputs naming the
+    script's own is checked where the script is merged."""
+    _run_script_def("AgentToolManifest", data)
+    return _models.AgentToolManifest.model_validate(data)
 
 
 def validate_script_action(data: Any) -> _models.ScriptAction:
