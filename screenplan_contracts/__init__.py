@@ -19,6 +19,10 @@ from .models import (
     ScriptProps,
     ScriptStatus,
     SystemName,
+    SlotName,
+    ActionTarget,
+    DeviceSlotEntry,
+    DeviceBindings,
     RunStatus,
 )
 from screenplan_contracts_schemas import list_schemas
@@ -54,6 +58,10 @@ __all__ = [
     "ScriptProps",
     "ScriptStatus",
     "SystemName",
+    "SlotName",
+    "ActionTarget",
+    "DeviceSlotEntry",
+    "DeviceBindings",
     "get_artifacts_spec",
     "list_schemas",
     "load_schema",

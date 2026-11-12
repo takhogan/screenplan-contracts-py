@@ -41,7 +41,7 @@ def test_event_status_example():
 
 def test_script_action_log_example():
     out = validate_script_action_log(_load("script-action-log.example.json"))
-    assert out.target_system == "python"
+    assert out.target_system.root == "python"  # ActionTarget: a slot, host, none, blank or a v22 driver type
     assert out.pre_file is not None
     assert out.post_file is None  # `{}` collapses to None
 
@@ -128,3 +128,30 @@ def test_action_log_with_needs_approval_status():
     data["status"] = "NEEDS_SOMETHING"
     with pytest.raises(ContractValidationError):
         validate_script_action_log(data)
+
+
+# ---- device slots (interface version 23) ----
+
+def test_device_slot_models():
+    from screenplan_contracts import ActionTarget, DeviceSlotEntry, SlotName, ScriptProps
+    for t in ["device0", "phone1", "host", "none", "", "python", "adb"]:
+        ActionTarget.model_validate(t)
+    for bad in ["phone", "tv0", "Phone0"]:
+        with pytest.raises(Exception):
+            ActionTarget.model_validate(bad)
+    assert DeviceSlotEntry.model_validate({"slot": "phone0", "description": "d"}).slot.root == "phone0"
+    with pytest.raises(Exception):
+        SlotName.model_validate("host")
+    props = ScriptProps.model_validate({
+        "targetSystem": "desktop0", "width": 1, "height": 1, "scriptMode": "prod",
+        "deploymentToLibrary": False, "devices": [{"slot": "desktop0"}, {"slot": "phone0"}],
+    })
+    assert [d.slot.root for d in props.devices] == ["desktop0", "phone0"]
+
+
+def test_device_slot_schema_validation():
+    validate_script_props({"targetSystem": "desktop0", "width": 1, "height": 1, "scriptMode": "prod",
+                           "deploymentToLibrary": False, "devices": [{"slot": "tablet0"}]})
+    with pytest.raises(ContractValidationError):
+        validate_script_props({"targetSystem": "desktop0", "width": 1, "height": 1, "scriptMode": "prod",
+                               "deploymentToLibrary": False, "devices": [{"slot": "host"}]})

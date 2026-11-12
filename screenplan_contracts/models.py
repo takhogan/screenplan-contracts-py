@@ -19,6 +19,10 @@ from ._generated.common_schema import (
     QueueStatus,
     RunStatus,
     SystemName,
+    SlotName,
+    ActionTarget,
+    DeviceSlotEntry,
+    DeviceBindings,
 )
 from ._generated.event_status_schema import (
     EventStatus,
@@ -108,6 +112,10 @@ __all__ = [
     "ScriptMeta",
     "ScriptProps",
     "SystemName",
+    "SlotName",
+    "ActionTarget",
+    "DeviceSlotEntry",
+    "DeviceBindings",
     "TreeEntityType",
     "VariableItem",
 ]
