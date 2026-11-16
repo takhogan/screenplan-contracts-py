@@ -25,6 +25,13 @@ from .models import (
     UIGraphRun,
 )
 from screenplan_contracts_schemas import list_schemas
+from .names import (
+    NOT_A_SCREENPLAN_NAME,
+    ScreenPlanNameProblem,
+    is_screenplan_name,
+    screenplan_name_problem,
+    suggest_screenplan_name,
+)
 from .validation import (
     ContractValidationError,
     get_artifacts_spec,
@@ -43,6 +50,11 @@ from .validation import (
 )
 
 __all__ = [
+    "NOT_A_SCREENPLAN_NAME",
+    "ScreenPlanNameProblem",
+    "is_screenplan_name",
+    "screenplan_name_problem",
+    "suggest_screenplan_name",
     "AgentToolManifest",
     "ArtifactAttributeSpec",
     "ArtifactFileSlot",
