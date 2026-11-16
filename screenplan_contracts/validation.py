@@ -48,6 +48,7 @@ def _store() -> Dict[str, Dict[str, Any]]:
         "script-versions.schema.json",
         "ui-graph-run.schema.json",
         "ui-graph.schema.json",
+        "event-check-result.schema.json",
     ]
     return {name: load_schema(name) for name in names}
 
@@ -144,6 +145,12 @@ def validate_ui_graph_run(data: Any) -> _models.UIGraphRun:
 def validate_ui_graph(data: Any) -> _models.UIGraph:
     _run("ui-graph.schema.json", "UIGraph", data)
     return _models.UIGraph.model_validate(data)
+
+
+def validate_event_check_result(data: Any) -> Dict[str, Any]:
+    """Validate a grammar checker result (event-check-result.schema.json). Returns it unchanged."""
+    _run("event-check-result.schema.json", "EventCheckResult", data)
+    return data
 
 
 def validate_artifacts_spec(data: Any) -> _models.ScriptActionArtifactsSpec:
