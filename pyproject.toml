@@ -14,5 +14,9 @@ dependencies = [
     "screenplan-contracts-schemas @ git+https://github.com/takhogan/screenplan-contracts.git@main",
 ]
 
-[tool.setuptools]
-packages = ["screenplan_contracts"]
+# Every subpackage, not only the top one: a plain `packages = [...]` list left
+# screenplan_contracts._generated and screenplan_contracts.event_grammar out of
+# a non-editable install (pip install git+…, which ScriptEngine and
+# ScriptScheduler builds use), so `import screenplan_contracts` failed there.
+[tool.setuptools.packages.find]
+include = ["screenplan_contracts", "screenplan_contracts.*"]
