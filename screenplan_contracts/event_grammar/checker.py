@@ -1237,6 +1237,25 @@ def _result(grammar: int, diags: List[Dict[str, Any]], unchecked: List[Dict[str,
     return {"ok": not errors, "grammar": grammar, "errors": errors, "warnings": warnings, "unchecked": unchecked, "outline": outline_steps}
 
 
+_TODO_RE = re.compile(r"^(\s*)# TODO\(grammar 1\)")
+
+
+def _grammar1_todos(src: _Source) -> List[Dict[str, Any]]:
+    """A ``# TODO(grammar 1):`` comment, left by the grammar 1 converter where
+    it couldn't translate a line, is an error, so the event can't be saved
+    until someone writes that part in grammar 2."""
+    message = _registry().templates["grammar-1-todo"]["message"]
+    out = []
+    for i, line in enumerate(src.lines):
+        m = _TODO_RE.match(line)
+        if m:
+            out.append({
+                "code": "grammar-1-todo", "line": i + 1, "column": len(m.group(1)) + 1,
+                "endLine": i + 1, "endColumn": len(line.rstrip()) + 1, "message": message,
+            })
+    return out
+
+
 def check(text: str, context: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
     """The grammar checker: the grammar level always, the context level when
     ``context`` is given. Returns the event-check-result shape."""
@@ -1265,6 +1284,7 @@ def check(text: str, context: Optional[Dict[str, Any]] = None) -> Dict[str, Any]
             "code": "missing-header", "line": 1, "column": 1, "endLine": 1, "endColumn": 1,
             "message": reg.templates["missing-header"]["message"], "fix": {"replace": HEADER + "\n", "label": "add the header"},
         })
+    diags.extend(_grammar1_todos(src))
     try:
         tree = ast.parse(text)
     except (SyntaxError, ValueError) as error:

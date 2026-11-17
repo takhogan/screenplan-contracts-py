@@ -120,3 +120,25 @@ def test_cli(tmp_path):
                           "--context", str(CORPUS / "19-context.context.json")], capture_output=True, text=True, env=env)
     assert bad.returncode == 1
     assert json.loads(bad.stdout) == check((CORPUS / "19-context.py").read_text("utf-8"), context_of(CORPUS / "19-context.py"))
+
+
+GRAMMAR1 = sorted((CORPUS / "grammar1").glob("*.py"))
+
+
+@pytest.mark.parametrize("path", GRAMMAR1, ids=[p.name for p in GRAMMAR1])
+def test_grammar1_conversions_check(path: Path):
+    """The TypeScript converter's expected output (grammar1/NAME.py for
+    grammar1/NAME.txt) passes this checker too, apart from its
+    `# TODO(grammar 1):` lines, one grammar-1-todo error each."""
+    text = path.read_text("utf-8")
+    result = check(text)
+    assert result["grammar"] == 2
+    assert [e for e in result["errors"] if e["code"] != "grammar-1-todo"] == []
+    todos = [line for line in text.split("\n") if line.lstrip().startswith("# TODO(grammar 1):")]
+    assert len(result["errors"]) == len(todos)
+
+
+def test_a_todo_comment_is_an_error():
+    r = check(HEADER + "\n    # TODO(grammar 1): if(x, Foo) -- why\npass\n")
+    assert [(e["code"], e["line"], e["column"], e["endColumn"]) for e in r["errors"]][:1] == [("grammar-1-todo", 2, 5, 41)]
+    assert check(HEADER + "\n# TODO: something else\npass\n")["ok"] is True
