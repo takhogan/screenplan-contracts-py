@@ -58,6 +58,7 @@ class ActionName(str, Enum):
     user_prompt_action = "userPromptAction"
     calendar_action = "calendarAction"
     user_secret_management_action = "userSecretManagementAction"
+    interact_device_action = "interactDeviceAction"
     interact_application_action = "interactApplicationAction"
 
 

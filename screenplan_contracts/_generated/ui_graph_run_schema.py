@@ -75,6 +75,8 @@ class Kind(str, Enum):
     key = "key"
     start_application = "startApplication"
     stop_application = "stopApplication"
+    start_device = "startDevice"
+    stop_device = "stopDevice"
 
 
 class Input(BaseModel):

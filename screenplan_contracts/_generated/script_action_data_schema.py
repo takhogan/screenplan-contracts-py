@@ -1137,16 +1137,36 @@ class UserSecretManagementActionData(BaseModel):
 
 
 class ActionType(str, Enum):
+    start_application = "startApplication"
+    stop_application = "stopApplication"
+    start_device = "startDevice"
+    stop_device = "stopDevice"
     start = "start"
     stop = "stop"
     list = "list"
 
 
-class InteractApplicationActionData(BaseModel):
+class InteractDeviceActionData(BaseModel):
+    """
+    interactDeviceAction: starts or stops an application on the targetSystem device, or the device itself. Up to interface version 23 the action was interactApplicationAction, with actionType start, stop or list; migrateV23ToV24 renames it and maps start to startApplication and stop to stopApplication.
+    """
+
     model_config = ConfigDict(
         extra="allow",
     )
     target_system: Annotated[common_schema.ActionTarget, Field(alias="targetSystem")]
     action_type: Annotated[ActionType | None, Field(alias="actionType")] = None
-    action_payload: Annotated[str | None, Field(alias="actionPayload")] = None
-    application_name: Annotated[str | None, Field(alias="applicationName")] = None
+    action_payload: Annotated[
+        str | None,
+        Field(
+            alias="actionPayload",
+            description="For startApplication: an activity on adb, arguments on a desktop. Unused otherwise.",
+        ),
+    ] = None
+    application_name: Annotated[
+        str | None,
+        Field(
+            alias="applicationName",
+            description="For startApplication and stopApplication: a package on adb, a program or process name on a desktop. Unused for startDevice and stopDevice.",
+        ),
+    ] = None
