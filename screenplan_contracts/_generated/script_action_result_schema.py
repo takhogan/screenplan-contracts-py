@@ -450,25 +450,38 @@ class KeyboardFields(BaseModel):
 
 
 class ApplicationAction(str, Enum):
+    """
+    actionType. start and stop are interactApplicationAction's, in runs of scripts before interface version 24.
+    """
+
+    start_application = "startApplication"
+    stop_application = "stopApplication"
+    start_device = "startDevice"
+    stop_device = "stopDevice"
     start = "start"
     stop = "stop"
 
 
-class InteractApplicationFields(BaseModel):
+class InteractDeviceFields(BaseModel):
     model_config = ConfigDict(
         extra="forbid",
     )
-    application_action: ApplicationAction | None = None
+    application_action: Annotated[
+        ApplicationAction | None,
+        Field(
+            description="actionType. start and stop are interactApplicationAction's, in runs of scripts before interface version 24."
+        ),
+    ] = None
     application: Annotated[
         str | None,
         Field(
-            description="applicationName: a package on adb, a program or process name on a desktop."
+            description="applicationName: a package on adb, a program or process name on a desktop. null for startDevice and stopDevice."
         ),
     ] = None
     payload: Annotated[
         str | None,
         Field(
-            description="actionPayload, for start: an activity on adb, arguments on a desktop."
+            description="actionPayload, for startApplication: an activity on adb, arguments on a desktop."
         ),
     ] = None
     succeeded: bool | None = None
@@ -535,19 +548,27 @@ class KeyboardResult(BaseModel):
     ]
 
 
-class InteractApplicationResult(BaseModel):
+class InteractDeviceActionName(str, Enum):
+    """
+    interactApplicationAction in runs of scripts before interface version 24.
+    """
+
+    interact_device_action = "interactDeviceAction"
+    interact_application_action = "interactApplicationAction"
+
+
+class InteractDeviceResult(BaseModel):
     model_config = ConfigDict(
         extra="forbid",
     )
     format: Format
     version: Version
     capture: Capture | None = None
-    action: Literal["interactApplicationAction"]
+    action: InteractDeviceActionName
     action_group: ActionGroup
     script_counter: ScriptCounter
     fields: Annotated[
-        InteractApplicationFields | EmptyFields,
-        Field(description="Empty in version 1."),
+        InteractDeviceFields | EmptyFields, Field(description="Empty in version 1.")
     ]
 
 
@@ -688,7 +709,7 @@ class ScriptActionResult(
         | ColorCompareResult
         | ImageToTextResult
         | KeyboardResult
-        | InteractApplicationResult
+        | InteractDeviceResult
         | OtherActionResult
     ]
 ):
@@ -699,7 +720,7 @@ class ScriptActionResult(
         | ColorCompareResult
         | ImageToTextResult
         | KeyboardResult
-        | InteractApplicationResult
+        | InteractDeviceResult
         | OtherActionResult,
         Field(
             description="What one action did, as fields: written by ScriptEngine for every action at info and debug level as {counter}-{actionName}-{actionGroup}-result.json, next to its action-log.json, and listed among the action log's supporting_files. The action log is the same for every action; this carries what is specific to each (detect matches, click points, colour scores, OCR text). Source of truth: ScriptEngine/common/logging/action_result.py. Coordinates are pixels of the action's input screenshot unless a field says it is in device coordinates. Every action writes the envelope; an action with nothing of its own has empty fields. Version 2 adds capture: when the action's screenshot was taken and by what. Readers accept both versions.",
