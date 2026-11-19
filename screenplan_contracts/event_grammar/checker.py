@@ -1241,7 +1241,7 @@ _TODO_RE = re.compile(r"^(\s*)# TODO\(grammar 1\)")
 
 
 def _grammar1_todos(src: _Source) -> List[Dict[str, Any]]:
-    """A ``# TODO(grammar 1):`` comment, left by the grammar 1 converter where
+    """A ``# TODO(grammar 1):`` comment, left by the grammar 2 migration where
     it couldn't translate a line, is an error, so the event can't be saved
     until someone writes that part in grammar 2."""
     message = _registry().templates["grammar-1-todo"]["message"]
