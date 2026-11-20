@@ -147,11 +147,11 @@ class _Source:
 # header
 
 
-_BLOCK_RE = re.compile(r"^\s*(with|def|for|try|if|elif|else|finally|while)\b(?!\s*\().*:\s*(#.*)?$")
-_SCRIPT_RE = re.compile(r"^\s*[A-Z][A-Za-z0-9_]*\.[A-Za-z_][A-Za-z0-9_]*\s*\(")
-
-
 def _header_state(lines: List[str]) -> Tuple[str, Optional[int]]:
+    """The optional header: "ok" when the first non-blank line is exactly the
+    header, "malformed" when it is a comment naming a ScreenPlan event that
+    isn't exactly the header (a misspelling, another grammar), "none" when
+    there is no header, "blank" when the text has no non-blank line."""
     for i, line in enumerate(lines):
         s = line.strip()
         if not s:
@@ -161,22 +161,19 @@ def _header_state(lines: List[str]) -> Tuple[str, Optional[int]]:
         if s.startswith("#") and "screenplan event" in s.lower():
             return "malformed", i
         return "none", i
-    return "none", None
+    return "blank", None
 
 
-def _looks_grammar2(lines: List[str]) -> bool:
-    reg = _registry()
-    names = sorted((b for b in reg.builtins if reg.builtins[b]["kind"] != "expression"), key=len, reverse=True)
-    builtin_re = re.compile(r"(^|[^A-Za-z0-9_.])(" + "|".join(names) + r")\s*\(")
-    for line in lines:
-        if _BLOCK_RE.search(line) or _SCRIPT_RE.search(line) or builtin_re.search(line):
-            return True
-    return False
+def has_header(text: str) -> bool:
+    """Whether the text's first non-blank line is the (optional) grammar 2 header."""
+    return _header_state(_normalize(text).split("\n"))[0] == "ok"
 
 
 def is_grammar2(text: str) -> bool:
-    """Whether the text's first non-blank line is the grammar 2 header."""
-    return _header_state(_normalize(text).split("\n"))[0] == "ok"
+    """Whether the text is a grammar 2 event: any text with a non-blank line,
+    with or without the header (grammar 1 no longer runs, so nothing else is
+    read as grammar 1). Blank text is no event at all."""
+    return _header_state(_normalize(text).split("\n"))[0] != "blank"
 
 
 # ---------------------------------------------------------------------------
@@ -1264,25 +1261,18 @@ def check(text: str, context: Optional[Dict[str, Any]] = None) -> Dict[str, Any]
     src = _Source(text)
     state, idx = _header_state(src.lines)
     unchecked = [dict(u) for u in (context or {}).get("unchecked", []) or []] if context is not None else []
-    if state == "none" and not _looks_grammar2(src.lines):
-        line = (idx if idx is not None else 0) + 1
-        end = len(src.lines[line - 1]) + 1 if src.lines else 1
+    if state == "blank":
         d = {
-            "code": "grammar-1-not-accepted", "line": line, "column": 1, "endLine": line, "endColumn": end,
-            "message": reg.templates["grammar-1-not-accepted"]["message"],
+            "code": "empty-event", "line": 1, "column": 1, "endLine": 1, "endColumn": 1,
+            "message": reg.templates["empty-event"]["message"],
         }
-        return _result(1, [d], unchecked, [])
+        return _result(2, [d], unchecked, [])
     diags: List[Dict[str, Any]] = []
     if state == "malformed":
         line = idx + 1  # type: ignore[operator]
         diags.append({
-            "code": "missing-header", "line": line, "column": 1, "endLine": line, "endColumn": len(src.lines[line - 1]) + 1,
-            "message": reg.templates["missing-header"]["message"], "fix": {"replace": HEADER, "label": "fix the header"},
-        })
-    elif state == "none":
-        diags.append({
-            "code": "missing-header", "line": 1, "column": 1, "endLine": 1, "endColumn": 1,
-            "message": reg.templates["missing-header"]["message"], "fix": {"replace": HEADER + "\n", "label": "add the header"},
+            "code": "malformed-header", "line": line, "column": 1, "endLine": line, "endColumn": len(src.lines[line - 1]) + 1,
+            "message": reg.templates["malformed-header"]["message"], "fix": {"replace": HEADER, "label": "fix the header"},
         })
     diags.extend(_grammar1_todos(src))
     try:
