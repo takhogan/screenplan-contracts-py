@@ -15,7 +15,7 @@ from pathlib import Path
 import pytest
 
 from screenplan_contracts.validation import validate_event_check_result
-from screenplan_contracts.event_grammar import HEADER, check, is_grammar2, load_registry, outline, validate
+from screenplan_contracts.event_grammar import HEADER, check, has_header, is_grammar2, load_registry, outline, validate
 
 CONTRACTS = Path(os.environ.get("CONTRACTS_DIR") or Path(__file__).resolve().parents[2] / "screenplan-contracts")
 CORPUS = CONTRACTS / "fixtures" / "event-grammar"
@@ -103,11 +103,15 @@ def test_applying_fixes_clears_them(path: Path):
 
 def test_entry_points_agree():
     text = (CORPUS / "01-spec-example.py").read_text("utf-8")
-    assert is_grammar2(text)
-    assert not is_grammar2((CORPUS / "16-grammar1.py").read_text("utf-8"))
-    g1 = check((CORPUS / "16-grammar1.py").read_text("utf-8"))
-    assert g1["grammar"] == 1
-    assert [(e["code"], "fix" in e) for e in g1["errors"]] == [("grammar-1-not-accepted", False)]
+    assert is_grammar2(text) and has_header(text)
+    headerless = (CORPUS / "14-header-missing.py").read_text("utf-8")
+    assert is_grammar2(headerless) and not has_header(headerless)
+    assert check(headerless)["ok"]
+    assert is_grammar2((CORPUS / "16-grammar1.py").read_text("utf-8"))
+    assert check((CORPUS / "16-grammar1.py").read_text("utf-8"))["grammar"] == 2
+    assert not is_grammar2("") and not is_grammar2("  \n\t\n")
+    assert [e["code"] for e in check("  \n")["errors"]] == ["empty-event"]
+    assert not has_header("# ScreenPlan event (grammar 3)\nDefault.A()")
     assert validate(text) == []
     assert outline(text) == check(text)["outline"]
     assert check("\r\n".join([HEADER, "with target_host('H'):", "    Default.Run()"]))["ok"]

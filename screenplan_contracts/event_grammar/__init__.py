@@ -22,10 +22,11 @@ from __future__ import annotations
 from .checker import (  # noqa: F401
     HEADER,
     check,
+    has_header,
     is_grammar2,
     load_registry,
     outline,
     validate,
 )
 
-__all__ = ["HEADER", "check", "is_grammar2", "load_registry", "outline", "validate"]
+__all__ = ["HEADER", "check", "has_header", "is_grammar2", "load_registry", "outline", "validate"]
